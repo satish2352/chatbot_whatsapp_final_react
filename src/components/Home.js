@@ -1,42 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { QRCode } from "react-qr-code";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 const Home = () => {
   const [qrCode, setQrCode] = useState(null)
-  const [text, setText] = useState(null) 
+  const [text, setText] = useState(null)
   const navigate = useNavigate()
   let socket;
 
-  useEffect(function(){
+  useEffect(function () {
     socket = new WebSocket("ws://localhost:3001")
-    socket.onopen = function(){
+    socket.onopen = function () {
       console.log("Connected")
     }
   }, [])
 
-  async function connect(){
+  async function connect() {
     await socket.send("/connect")
-    socket.onmessage = function(message){
+    socket.onmessage = function (message) {
 
       const msg = message.data
 
-      if(msg.slice(0, 3) === "qr:"){
+      if (msg.slice(0, 3) === "qr:") {
         setQrCode(msg.slice(3))
-        console.log('From Server: '+message)
-      }else if(msg === "Connection Made"){
+        console.log('From Server: ' + message)
+      } else if (msg === "Connection Made") {
         navigate('/playground')
-      }else{
+      } else {
         setText(msg)
       }
 
     }
   }
 
-  return(
+  return (
     <>
       {text && <p>{text}</p>}
-      {qrCode && <QRCode value={qrCode}/>}
+      {qrCode && <QRCode value={qrCode} />}
       <button onClick={connect}>Connect</button>
     </>
   )
@@ -64,7 +64,7 @@ const Home = () => {
   //     <button onClick={getqr} disabled={loading}>
   //       {loading ? 'Generating...' : 'Get Qr'}
   //     </button>
-      
+
   //     {msg && <p className="msg">{msg}</p>}
   //     {qrCode && <QRCode value={qrCode} size={256} />}
   //   </div>
