@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, { useRef, useCallback, useMemo, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -75,6 +75,22 @@ const Flow = () => {
     [screenToFlowPosition],
   );
 
+
+  useEffect(function(){
+    const id = localStorage.getItem("id")
+    const socket = new WebSocket("ws://localhost:3001")
+    socket.onopen = function(){
+      socket.send(`/getFlow/${id}`)
+      socket.onmessage = async function(message){
+        const msg  = await message.data
+        if(msg.slice(0, 5) === "flow:"){
+          const data  = JSON.parse(msg.slice(5))
+          setNodes((nds)=>nds=data.nodes)
+          setEdges((eds)=>eds=data.edges)
+        }
+      }
+    }
+  }, [])
   
 
   return (
